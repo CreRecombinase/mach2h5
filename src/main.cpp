@@ -354,19 +354,12 @@ const hid_t HighFive::Filter::blosc;
 const hid_t HighFive::Filter::lzf;
 const hid_t HighFive::Filter::zstd;
 const hid_t HighFive::Filter::no_filter;
-//static const size_t CHUNK_BASE = 16*1024;
-//static const size_t CHUNK_MIN = 8*1024;
-//static const size_t CHUNK_MAX = 1024*1024;
+
 
 
 
 int main (int argc, char* argv[]){
-
-
   cxxopts::Options options("mach2h5", "Convert Mach VCF files to HDF5");
-
-
-
   options.add_options("input")
           ("m,machfile", "mach dosage file (required)",cxxopts::value<std::string>())
           ("s,SNPlist", "file/datapath to the list of SNPs to convert (required)",cxxopts::value<std::string>())
@@ -389,13 +382,13 @@ int main (int argc, char* argv[]){
 
   auto r = register_blosc(nullptr,nullptr);
   auto nr = register_zstd();
-  auto result = options.parse(argc, argv);
+  cxxopts::ParseResult result = options.parse(argc, argv);
 
-    if (result.count("help"))
-    {
-        std::cout << options.help({"", "input","output","processing"}) << std::endl;
-        exit(0);
-    }
+  if (result.count("help"))
+  {
+      std::cout << options.help({"", "input","output","processing"}) << std::endl;
+      exit(0);
+  }
 
   for(std::string tstring : {"machfile","SNPlist","samplenames","hdf5"}){
       if(!result.count(tstring)){
@@ -407,10 +400,6 @@ int main (int argc, char* argv[]){
 
 
   std::string dosagefile = result["machfile"].as<std::string>();
-
-
-
-
   std::string snplistf = result["SNPlist"].as<std::string>();
   std::string samplef = result["samplenames"].as<std::string>();
   std::vector<int> snp_idx= read_vec_col<int>(snplistf,"snp_id");
@@ -461,7 +450,7 @@ int main (int argc, char* argv[]){
       comp_opts=split<unsigned int>(result["filter_opts"].as<std::string>(),',');
   }
     {
-        File file(h5file, HighFive::File::ReadWrite | HighFive::File::Create);
+        File file(h5file, HighFive::File::ReadWrite | HighFive::File::Create |HighFive::File::Truncate);
         DataSpace space(space_dims);
         std::vector<size_t> chunk_dimensions;
         if (result.count("chunksize")) {
@@ -484,7 +473,7 @@ int main (int argc, char* argv[]){
     if(!mapfile.is_open()){
         Rcpp::stop("opening	file:"+dosagefile+"failed!");
     }else{
-        std::cerr<<"File mapped, opening stream"<<std::endl;
+        //std::cerr<<"File mapped, opening stream"<<std::endl;
     }
     boost::iostreams::stream<boost::iostreams::mapped_file_source> textstream(mapfile);
     boost::iostreams::filtering_istream fs;
