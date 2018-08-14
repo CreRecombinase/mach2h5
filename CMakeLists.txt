@@ -32,9 +32,9 @@ target_link_libraries (zstd_filter ${ZSTD_LIBRARY})
 find_package(HDF5)
 find_package(Boost REQUIRED COMPONENTS system iostreams)
 
-find_package (Eigen3 3.3 REQUIRED NO_MODULE)
+#find_package (Eigen3 3.3 REQUIRED NO_MODULE)
 #add_executable (example example.cpp)
-target_link_libraries (mach2h5 Eigen3::Eigen ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES} blosc_filter zstd_filter ${BLOSC_LIBRARY} ${ZSTD_LIBRARY})
+target_link_libraries (mach2h5 ${HDF5_LIBRARIES} ${HDF5_HL_LIBRARIES} blosc_filter zstd_filter ${BLOSC_LIBRARY} ${ZSTD_LIBRARY})
 
 
 target_link_libraries (mach2h5 ${Boost_LIBRARIES})
